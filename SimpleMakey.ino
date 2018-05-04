@@ -55,14 +55,12 @@
 // If unwanted key will appear, then decrease sensitivity,
 // otherwise if no key appear then increase sensitivity.
 // THRESHOLD: Number between 0 (less sensitive) to 1 (more sensitive).
-#define THRESHOLD 0.1
+#define THRESHOLD .5
 
 // Instead of use an external 22MOhm pullup resistor as Makey-Makey, we use internal pullup
 // resistor + pin capacitance driven by a software generated pwm swtching signal.
 // CHARGE_TIME: Value between 0 to 255. The time the pullup resistor charge the capacitor.
-// DISCHARGE_TIME: Value between 0 to 255. The maximum time to wait for capacitor discharge.
-#define CHARGE_TIME 0
-#define DISCHARGE_TIME 255
+#define CHARGE_TIME 0 // 0 more sensitive - 255 less sensitive
 
 #include "Keyboard.h"
 
@@ -78,7 +76,7 @@ class TouchKeyboard {
   TouchKeyboard(byte pin, char key) {
     _pin = pin;
     _key = key;
-    threshold = this->dischargeTime() * 0.1;
+    threshold = this->dischargeTime() * THRESHOLD;
     
   };
 
@@ -89,7 +87,7 @@ class TouchKeyboard {
     pinMode(_pin, INPUT_PULLUP);
     for (value = 0; value < CHARGE_TIME; value++) {};
     pinMode(_pin, INPUT);
-    for (value = 0; value <DISCHARGE_TIME; value++) {
+    for (value = 0; value<255; value++) {
       if ( !digitalRead(_pin) ) break;
     };
     return value; 
@@ -144,14 +142,6 @@ TouchKeyboard *tb12;
 TouchKeyboard *tb13;
 TouchKeyboard *tbA4;
 TouchKeyboard *tbA5;
-
-void onTouch(byte key) {
-  Keyboard.press(key);
-}
-
-void onRelease(byte key) {
-  Keyboard.release(key);
-}
 
 void setup() {
   Keyboard.begin();
